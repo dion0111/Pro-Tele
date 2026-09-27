@@ -79,6 +79,9 @@
   .log-item .val{font-weight:800; color:var(--green); font-size:15px; white-space:nowrap;}
   .log-item .del{background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:2px 6px;}
   .totals{display:flex; gap:10px; margin-bottom:12px;}
+  .box.small{padding:9px;}
+  .box.small .n{font-size:16px;}
+  .box.small .l{font-size:10px;}
   .tabs{display:flex; gap:8px; margin-bottom:16px; background:var(--grey-bg); padding:4px; border-radius:12px;}
   .tab-btn{flex:1; border:none; background:none; color:var(--ink-soft); padding:10px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer;}
   .tab-btn.active{background:var(--pink); color:#fff;}
@@ -186,9 +189,18 @@
         <div class="box"><div class="n" id="tot-month">0 €</div><div class="l">dieser Monat</div></div>
         <div class="box"><div class="n" id="tot-all">0 €</div><div class="l">gesamt</div></div>
       </div>
+      <div class="totals" style="margin-top:8px;">
+        <div class="box small"><div class="n" id="cnt-neu">0</div><div class="l">Neukunden (Monat)</div></div>
+        <div class="box small"><div class="n" id="cnt-bk">0</div><div class="l">Bestandskunden (Monat)</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Verlauf</h2>
+      <div id="chart-wrap"></div>
     </div>
     <div id="month-groups"><div class="empty">Noch keine Einträge.</div></div>
   </div>
+
 
 </div>
 
@@ -810,6 +822,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const fsdb = firebase.firestore();
+// Offline-Modus: Firestore cached lokal (IndexedDB) und synchronisiert automatisch,
+// sobald wieder eine Verbindung besteht. Ohne Internet kann man weiter speichern/lesen.
+fsdb.enablePersistence({synchronizeTabs:true}).catch(e=>{ console.warn('Offline-Persistenz nicht verfügbar:', e.code); });
 
 let unsub = null;
 let currentUser = null;
@@ -827,7 +842,7 @@ function showLoginGate(errorMsg){
       <h3>Anmelden</h3>
       <p>Mit E-Mail &amp; Passwort anmelden oder ein neues Konto anlegen. Auf jedem Gerät mit demselben Konto siehst du denselben Provisions-Log.</p>
       <input type="email" id="login-email" placeholder="E-Mail" autocomplete="email">
-      <input type="password" id="login-pass" placeholder="Passwort (mind. 6 Zeichen)" autocomplete="current-password" style="margin-top:-6px;">
+      <input type="password" id="login-pass" placeholder="Passwort" autocomplete="current-password" style="margin-top:-6px;">
       ${errorMsg ? `<p style="color:#e2007a; font-size:12px; margin:-6px 0 10px;">${errorMsg}</p>` : ''}
       <button id="login-btn">Anmelden</button>
       <button id="register-btn" class="pin-cancel">Neues Konto registrieren</button>
@@ -840,6 +855,8 @@ function showLoginGate(errorMsg){
     catch(e){ showLoginGate(mapAuthError(e)); }
   };
   overlay.querySelector('#register-btn').onclick = async ()=>{
+    const sure = confirm('Neues Konto anlegen?\n\nFalls du dich schon einmal registriert hast, benutze stattdessen "Anmelden" mit denselben Zugangsdaten – sonst siehst du deine bisherigen Einträge hier nicht mehr (sie bleiben aber unter dem alten Konto gespeichert, nichts wird gelöscht).');
+    if(!sure) return;
     try{ await auth.createUserWithEmailAndPassword(email(), pass()); }
     catch(e){ showLoginGate(mapAuthError(e)); }
   };
@@ -869,10 +886,13 @@ auth.onAuthStateChanged(user=>{
 
 function subscribeLog(){
   if(unsub) unsub();
-  unsub = fsdb.collection("entries").where("uid","==",currentUser.uid)
-    .orderBy("createdAt","desc").limit(500)
+  unsub = fsdb.collection("entries").where("uid","==",currentUser.uid).limit(500)
     .onSnapshot(
-      snap => renderLog(snap.docs.map(d=>({id:d.id, ...d.data()}))),
+      snap => {
+        const list = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        list.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+        renderLog(list);
+      },
       err => { console.error(err); renderLog([]); }
     );
 }
@@ -883,7 +903,11 @@ function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH
 
 function renderLog(entries){
   const container = $('month-groups');
-  if(!entries.length){ container.innerHTML = '<div class="empty">Noch keine Einträge.</div>'; updateTotals(entries); return; }
+  if(!entries.length){
+    container.innerHTML = '<div class="empty">Noch keine Einträge.</div>';
+    updateTotals(entries); renderCounts(entries); renderChart(entries);
+    return;
+  }
   const groups = {};
   entries.forEach(e=>{
     const key = monthKey(e.date || e.createdAt);
@@ -917,6 +941,45 @@ function renderLog(entries){
     container.appendChild(monthDiv);
   });
   updateTotals(entries);
+  renderCounts(entries);
+  renderChart(entries);
+}
+
+function renderCounts(entries){
+  const now = new Date();
+  const monthEntries = entries.filter(e=>{
+    const d = new Date(e.date || e.createdAt || Date.now());
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  const neu = monthEntries.filter(e=>e.kundentyp==='neukunde').length;
+  const bk = monthEntries.length - neu;
+  $('cnt-neu').textContent = neu;
+  $('cnt-bk').textContent = bk;
+}
+
+function renderChart(entries){
+  const wrap = $('chart-wrap');
+  if(!entries.length){ wrap.innerHTML = '<div class="empty">Noch keine Daten.</div>'; return; }
+  const sums = {};
+  entries.forEach(e=>{
+    const key = monthKey(e.date || e.createdAt);
+    sums[key] = (sums[key]||0) + (e.total||0);
+  });
+  const keys = Object.keys(sums).sort().slice(-6);
+  const max = Math.max(...keys.map(k=>sums[k]), 1);
+  const w = 320, h = 150, slot = w/keys.length, barW = Math.max(20, slot - 16);
+  let bars = '';
+  keys.forEach((k,i)=>{
+    const val = sums[k];
+    const barH = Math.max(4, (val/max) * (h-34));
+    const x = i*slot + (slot-barW)/2;
+    const y = h - barH - 22;
+    const mm = parseInt(k.split('-')[1],10);
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="5" fill="#e2007a"/>`;
+    bars += `<text x="${x+barW/2}" y="${h-6}" text-anchor="middle" font-size="10" fill="currentColor" opacity=".65">${MONTH_NAMES[mm-1].slice(0,3)}</text>`;
+    bars += `<text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-size="9.5" fill="currentColor" opacity=".85">${Math.round(val)}€</text>`;
+  });
+  wrap.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; color:var(--ink);">${bars}</svg>`;
 }
 
 function updateTotals(entries){
@@ -947,10 +1010,16 @@ async function saveEntry(){
     uid: currentUser.uid,
   };
   $('btn-save').disabled = true;
+  const label = $('btn-save').textContent;
   try{
     await fsdb.collection("entries").add(entry);
     $('in-name').value = '';
-  }catch(e){ console.error(e); }
+    $('btn-save').textContent = '✓ Gespeichert';
+    setTimeout(()=>{ $('btn-save').textContent = label; }, 1200);
+  }catch(e){
+    console.error(e);
+    alert('Speichern fehlgeschlagen: ' + (e.message || e.code || e));
+  }
   $('btn-save').disabled = false;
 }
 
