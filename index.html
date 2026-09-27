@@ -79,17 +79,59 @@
   .log-item .val{font-weight:800; color:var(--green); font-size:15px; white-space:nowrap;}
   .log-item .del{background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:2px 6px;}
   .totals{display:flex; gap:10px; margin-bottom:12px;}
+  .tabs{display:flex; gap:8px; margin-bottom:16px; background:var(--grey-bg); padding:4px; border-radius:12px;}
+  .tab-btn{flex:1; border:none; background:none; color:var(--ink-soft); padding:10px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer;}
+  .tab-btn.active{background:var(--pink); color:#fff;}
+  .month-card{padding:0; overflow:hidden;}
+  .month-head{display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:var(--grey-bg); font-weight:800; font-size:14px;}
+  .month-sum{color:var(--green);}
+  .month-card .log-item{padding:11px 16px;}
   .totals .box{flex:1; background:var(--green-bg); border-radius:12px; padding:12px; text-align:center;}
   .totals .box .n{font-size:20px; font-weight:800; color:var(--green);}
   .totals .box .l{font-size:11px; color:var(--ink-soft); margin-top:2px;}
   .empty{color:var(--ink-soft); font-size:13.5px; text-align:center; padding:18px 0;}
   .badge-neu{color:var(--pink-dark);} .badge-bk{color:#8a6d00;}
+  .pin-link{
+    float:right; background:none; border:none; color:var(--pink); font-size:11.5px; font-weight:700;
+    text-transform:none; letter-spacing:0; cursor:pointer; padding:0;
+  }
+  #pin-overlay{
+    position:fixed; inset:0; background:rgba(10,9,15,.55); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:999; padding:20px;
+  }
+  .pin-card{
+    background:var(--card); border-radius:18px; padding:24px 22px; max-width:320px; width:100%;
+    text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .pin-card h3{margin:6px 0 8px; font-size:17px;}
+  .pin-card p{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:0 0 16px;}
+  .pin-card input{
+    width:100%; text-align:center; font-size:22px; letter-spacing:6px; padding:12px; border-radius:10px;
+    border:1.5px solid var(--border); background:var(--grey-bg); color:var(--ink); margin-bottom:14px;
+  }
+  .pin-card button#pin-confirm{
+    width:100%; background:var(--pink); color:#fff; border:none; border-radius:10px; padding:12px;
+    font-weight:800; font-size:14.5px; cursor:pointer;
+  }
+  .pin-card button.pin-cancel{
+    width:100%; background:none; color:var(--ink-soft); border:none; padding:10px; font-size:13px;
+    margin-top:6px; cursor:pointer;
+  }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="wrap">
   <h1>📶 Provisionsrechner</h1>
-  <p class="sub">Nach Produkt- &amp; Provisionsübersicht Anlage 1 (ab 03/26)</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="rechner">Rechner</button>
+    <button class="tab-btn" data-tab="monat">Monatsübersicht</button>
+  </div>
+
+  <div id="tab-rechner">
 
   <div class="card">
     <h2>1. Kundentyp</h2>
@@ -133,16 +175,21 @@
     <button class="save-btn" id="btn-save">In Provisions-Log speichern</button>
   </div>
 
-  <div class="card">
-    <h2>Provisions-Log</h2>
-    <div class="totals">
-      <div class="box"><div class="n" id="tot-month">0 €</div><div class="l">dieser Monat</div></div>
-      <div class="box"><div class="n" id="tot-all">0 €</div><div class="l">gesamt</div></div>
-    </div>
-    <div id="log-list"><div class="empty">Noch keine Einträge.</div></div>
+  <p class="hint">Zusatzvergütung Fiber Neu (74 €) gilt nur bei Glasfaser-Neuanschluss in Gebäuden mit Ausbaustatus „connected“, gebucht über TVPP (inkl. B2B), sofern der Kunde erstmalig einen Glasfaseranschluss erhält – nicht für Glasfaser-Bestandskunden. Alle Werte ohne Gewähr, Basis: Anlage 1 zum Handelsvertretervertrag.</p>
+
   </div>
 
-  <p class="hint">Zusatzvergütung Fiber Neu (74 €) gilt nur bei Glasfaser-Neuanschluss in Gebäuden mit Ausbaustatus „connected“, gebucht über TVPP (inkl. B2B), sofern der Kunde erstmalig einen Glasfaseranschluss erhält – nicht für Glasfaser-Bestandskunden. Alle Werte ohne Gewähr, Basis: Anlage 1 zum Handelsvertretervertrag.</p>
+  <div id="tab-monat" style="display:none;">
+    <div class="card">
+      <h2>Übersicht <button id="btn-change-pin" class="pin-link">Abmelden</button></h2>
+      <div class="totals">
+        <div class="box"><div class="n" id="tot-month">0 €</div><div class="l">dieser Monat</div></div>
+        <div class="box"><div class="n" id="tot-all">0 €</div><div class="l">gesamt</div></div>
+      </div>
+    </div>
+    <div id="month-groups"><div class="empty">Noch keine Einträge.</div></div>
+  </div>
+
 </div>
 
 <script>
@@ -745,45 +792,113 @@ function renderResult(){
   $('res-bonus').style.background = row.bonus ? "rgba(255,255,255,.32)" : "rgba(255,255,255,.15)";
 }
 
-/* ---- DB / Log ---- */
-// Läuft die Seite innerhalb von claude.ai (Artifact), wird der Log serverseitig
-// über die db-Capability gespeichert. Läuft sie selbst gehostet (z. B. GitHub
-// Pages, "Zum Home-Bildschirm" direkt aus Safari), gibt es kein window.claude –
-// dann wird stattdessen dauerhaft im localStorage des Geräts gespeichert,
-// genau wie beim Tageszähler.
-const LS_KEY = 'provi_entries_v1';
-let db = null, unsub = null;
+/* ---- Log-Speicherung mit echtem Login (Firebase Auth + Firestore) ----
+   Beim ersten Öffnen muss man sich mit E-Mail/Passwort registrieren
+   oder anmelden. Jeder Nutzer sieht danach nur seine eigenen
+   Einträge, live synchronisiert über alle Geräte, auf denen er sich
+   mit demselben Konto anmeldet. Ohne Login-Status wird die Log-
+   Ansicht ausgeblendet.
+*/
+const firebaseConfig = {
+  apiKey: "AIzaSyC--jvrCz9FJKybnjm_N0FTohVL7p6RpWc",
+  authDomain: "protele.firebaseapp.com",
+  projectId: "protele",
+  storageBucket: "protele.firebasestorage.app",
+  messagingSenderId: "9952787676",
+  appId: "1:9952787676:web:0bdf474bd2fc69c66d0819",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const fsdb = firebase.firestore();
 
-function loadLocal(){
-  try{ return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }catch(e){ return []; }
-}
-function saveLocal(entries){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(entries)); }catch(e){}
-}
-let localEntries = loadLocal();
+let unsub = null;
+let currentUser = null;
 
-async function initDb(){
-  try{
-    if(typeof claude !== 'undefined'){
-      db = await claude.use("db");
-    }
-  }catch(e){ db = null; }
-  if(db) subscribeLog();
-  else renderLog(localEntries); // lokal, dauerhaft via localStorage
+function showLoginGate(errorMsg){
+  let overlay = document.getElementById('pin-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'pin-overlay';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `
+    <div class="pin-card">
+      <div style="font-size:30px;">🔒</div>
+      <h3>Anmelden</h3>
+      <p>Mit E-Mail &amp; Passwort anmelden oder ein neues Konto anlegen. Auf jedem Gerät mit demselben Konto siehst du denselben Provisions-Log.</p>
+      <input type="email" id="login-email" placeholder="E-Mail" autocomplete="email">
+      <input type="password" id="login-pass" placeholder="Passwort (mind. 6 Zeichen)" autocomplete="current-password" style="margin-top:-6px;">
+      ${errorMsg ? `<p style="color:#e2007a; font-size:12px; margin:-6px 0 10px;">${errorMsg}</p>` : ''}
+      <button id="login-btn">Anmelden</button>
+      <button id="register-btn" class="pin-cancel">Neues Konto registrieren</button>
+    </div>`;
+  overlay.style.display = 'flex';
+  const email = ()=> overlay.querySelector('#login-email').value.trim();
+  const pass = ()=> overlay.querySelector('#login-pass').value;
+  overlay.querySelector('#login-btn').onclick = async ()=>{
+    try{ await auth.signInWithEmailAndPassword(email(), pass()); }
+    catch(e){ showLoginGate(mapAuthError(e)); }
+  };
+  overlay.querySelector('#register-btn').onclick = async ()=>{
+    try{ await auth.createUserWithEmailAndPassword(email(), pass()); }
+    catch(e){ showLoginGate(mapAuthError(e)); }
+  };
 }
+function mapAuthError(e){
+  const m = {
+    'auth/invalid-email':'Ungültige E-Mail-Adresse.',
+    'auth/missing-password':'Bitte Passwort eingeben.',
+    'auth/weak-password':'Passwort muss mind. 6 Zeichen haben.',
+    'auth/email-already-in-use':'Diese E-Mail ist bereits registriert – stattdessen anmelden.',
+    'auth/invalid-credential':'E-Mail oder Passwort falsch.',
+    'auth/wrong-password':'E-Mail oder Passwort falsch.',
+    'auth/user-not-found':'Kein Konto mit dieser E-Mail gefunden.',
+  };
+  return m[e.code] || ('Fehler: ' + e.message);
+}
+function hideLoginGate(){
+  const overlay = document.getElementById('pin-overlay');
+  if(overlay) overlay.remove();
+}
+
+auth.onAuthStateChanged(user=>{
+  currentUser = user;
+  if(user){ hideLoginGate(); subscribeLog(); }
+  else{ if(unsub) unsub(); renderLog([]); showLoginGate(); }
+});
+
 function subscribeLog(){
   if(unsub) unsub();
-  unsub = db.collection("entries").orderBy("createdAt","desc").limit(500).onSnapshot(
-    snap => renderLog(snap.docs.map(d=>({id:d.id, ...d.data()}))),
-    err => { console.error(err); renderLog(localEntries); }
-  );
+  unsub = fsdb.collection("entries").where("uid","==",currentUser.uid)
+    .orderBy("createdAt","desc").limit(500)
+    .onSnapshot(
+      snap => renderLog(snap.docs.map(d=>({id:d.id, ...d.data()}))),
+      err => { console.error(err); renderLog([]); }
+    );
 }
+
+const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+function monthKey(dateStr){ const d = new Date(dateStr || Date.now()); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH_NAMES[m-1] + ' ' + y; }
+
 function renderLog(entries){
-  const listEl = $('log-list');
-  if(!entries.length){ listEl.innerHTML = '<div class="empty">Noch keine Einträge.</div>'; }
-  else{
-    listEl.innerHTML = '';
-    entries.forEach(e=>{
+  const container = $('month-groups');
+  if(!entries.length){ container.innerHTML = '<div class="empty">Noch keine Einträge.</div>'; updateTotals(entries); return; }
+  const groups = {};
+  entries.forEach(e=>{
+    const key = monthKey(e.date || e.createdAt);
+    (groups[key] = groups[key] || []).push(e);
+  });
+  const keys = Object.keys(groups).sort().reverse();
+  container.innerHTML = '';
+  keys.forEach(key=>{
+    const list = groups[key];
+    const sum = list.reduce((s,e)=>s+(e.total||0),0);
+    const monthDiv = document.createElement('div'); monthDiv.className = 'card month-card';
+    const head = document.createElement('div'); head.className = 'month-head';
+    head.innerHTML = `<span>${monthLabel(key)}</span><span class="month-sum">${fmt(sum)}</span>`;
+    monthDiv.appendChild(head);
+    list.forEach(e=>{
       const item = document.createElement('div'); item.className='log-item';
       const date = e.date ? new Date(e.date).toLocaleDateString('de-DE') : '';
       const kt = e.kundentyp === 'neukunde' ? '<span class="badge-neu">Neukunde</span>' : '<span class="badge-bk">Bestandskunde</span>';
@@ -794,16 +909,13 @@ function renderLog(entries){
         </div>
         <div class="val">${fmt(e.total)}</div>
         <button class="del" data-id="${e.id}">✕</button>`;
-      listEl.appendChild(item);
-    });
-    listEl.querySelectorAll('.del').forEach(btn=>{
-      btn.onclick = async ()=>{
-        const id = btn.dataset.id;
-        if(db){ try{ await db.collection("entries").doc(id).delete(); }catch(e){} }
-        else { localEntries = localEntries.filter(x=>x.id!==id); saveLocal(localEntries); renderLog(localEntries); }
+      item.querySelector('.del').onclick = async ()=>{
+        try{ await fsdb.collection("entries").doc(e.id).delete(); }catch(err){ console.warn('Löschen fehlgeschlagen:', err); }
       };
+      monthDiv.appendChild(item);
     });
-  }
+    container.appendChild(monthDiv);
+  });
   updateTotals(entries);
 }
 
@@ -819,6 +931,7 @@ function updateTotals(entries){
 }
 
 async function saveEntry(){
+  if(!currentUser){ showLoginGate(); return; }
   const {row, total} = computeTotal();
   const entry = {
     date: new Date().toISOString(),
@@ -831,28 +944,36 @@ async function saveEntry(){
     tv: row.tv || null,
     name: $('in-name').value.trim(),
     total,
+    uid: currentUser.uid,
   };
   $('btn-save').disabled = true;
   try{
-    if(db){
-      await db.collection("entries").add(entry);
-    } else {
-      entry.id = 'local-'+Date.now();
-      localEntries.unshift(entry);
-      saveLocal(localEntries);
-      renderLog(localEntries);
-    }
+    await fsdb.collection("entries").add(entry);
     $('in-name').value = '';
   }catch(e){ console.error(e); }
   $('btn-save').disabled = false;
 }
 
+/* ---- Tabs ---- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-rechner').style.display = btn.dataset.tab==='rechner' ? '' : 'none';
+    $('tab-monat').style.display = btn.dataset.tab==='monat' ? '' : 'none';
+  };
+});
+
+/* ---- Robuste Fehlerbehandlung ---- */
+window.addEventListener('error', function(e){ console.warn('Abgefangener Fehler:', e.message || e); }, true);
+window.addEventListener('unhandledrejection', function(e){ console.warn('Abgefangene Promise-Ablehnung:', e.reason); e.preventDefault(); });
+
 /* ---- init ---- */
 $('btn-save').onclick = saveEntry;
+$('btn-change-pin').onclick = ()=> auth.signOut();
 renderSegKundentyp();
 renderSegVermarktung();
 renderFallSelect();
-initDb();
 </script>
 </body>
 </html>
