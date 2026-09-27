@@ -821,6 +821,12 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+// Login gilt nur für die aktuelle Sitzung: schließt man die App/den Tab,
+// wird der Login-Status verworfen und man muss sich neu anmelden.
+// Betrifft NUR den Anmeldestatus, nicht die gespeicherten Provisionen –
+// die liegen in der Datenbank und bleiben davon unberührt.
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+  .catch(e=> console.warn('Persistence-Einstellung fehlgeschlagen:', e));
 const fsdb = firebase.firestore();
 // Offline-Modus: Firestore cached lokal (IndexedDB) und synchronisiert automatisch,
 // sobald wieder eine Verbindung besteht. Ohne Internet kann man weiter speichern/lesen.
