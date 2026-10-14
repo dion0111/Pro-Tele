@@ -482,144 +482,131 @@ const STD_SNCN = {
 };
 
 // ---- VORVERMARKTUNG (nur Glasfaser) ----
+// Stand: Primus Connect / World of Primus GmbH, ab 09/26. Nur Glasfaser 150/300
+// sind in dieser Liste enthalten (höhere Bandbreiten fehlen dort, daher hier
+// bewusst weggelassen statt veraltete Werte zu zeigen). Diese Liste nennt keine
+// Bonusrelevant-Spalte mehr; Einstufung (JA bei Neukunden-Fällen, NEIN bei
+// Bestandskunden-Wechseln) aus der bisherigen Systematik übernommen.
 const VV_BNDP = { [G]: rows([
     ["Vorvermarktung Glasfaser 150", null,103,0,0,0,true],
     ["Vorvermarktung Glasfaser 300", null,112,0,0,0,true],
-    ["Vorvermarktung Glasfaser 600", null,121,0,0,0,true],
-    ["Vorvermarktung Glasfaser 1.000", null,130,0,0,0,true],
-    ["Vorvermarktung Glasfaser 2.000", null,130,0,0,0,true],
 ])};
 const VV_NDPT = VV_BNDP;
 const VV_BNTP = { [G]: rows([
-    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",120,0,0,0,true],
-    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",129,0,0,0,true],
-    ["Vorvermarktung Glasfaser 600","MagentaTV Smart",138,0,0,0,true],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV Smart",147,0,0,0,true],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV Smart",147,0,0,0,true],
-    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",125,0,0,0,true],
-    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",134,0,0,0,true],
-    ["Vorvermarktung Glasfaser 600","MagentaTV SmartStream",143,0,0,0,true],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV SmartStream",152,0,0,0,true],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV SmartStream",152,0,0,0,true],
-    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",130,0,0,0,true],
-    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",139,0,0,0,true],
-    ["Vorvermarktung Glasfaser 600","MagentaTV MegaStream",148,0,0,0,true],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV MegaStream",157,0,0,0,true],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV MegaStream",157,0,0,0,true],
+    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",74,0,0,0,true],
+    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",85,0,0,0,true],
+    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",79,0,0,0,true],
+    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",90,0,0,0,true],
+    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",84,0,0,0,true],
+    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",95,0,0,0,true],
 ])};
 const VV_NTPT = VV_BNTP;
 
-const VV_TP_UP = rows([
-    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",89,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",101,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV Smart",114,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV Smart",127,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV Smart",127,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",95,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",107,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV SmartStream",120,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV SmartStream",133,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV SmartStream",133,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",101,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",113,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV MegaStream",126,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV MegaStream",139,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV MegaStream",139,0,0,0,false],
+// Layer Up / Speed XX (LUSX) – ersetzt die frühere Trennung LUSU/LUSN/LUSD
+const VV_LUSX_TP = rows([
+    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",74,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",85,0,0,0,false],
+    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",79,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",90,0,0,0,false],
+    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",84,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",95,0,0,0,false],
 ]);
-const VV_LU = { [G]: VV_TP_UP };
+const VV_LU = { [G]: VV_LUSX_TP };
 
+// "Speed UND/ODER Content up" – ersetzt die frühere Trennung SUCU/SUCN/SNCU
 const VV_CONTENT_UP_TP = rows([
-    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",40,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",50,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV Smart",61,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV Smart",72,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV Smart",72,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",45,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",56,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV SmartStream",67,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV SmartStream",77,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV SmartStream",77,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",50,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",61,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV MegaStream",72,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV MegaStream",83,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV MegaStream",83,0,0,0,false],
+    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",33,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",42,0,0,0,false],
+    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",38,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",47,0,0,0,false],
+    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",42,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",51,0,0,0,false],
+]);
+const VV_CONTENT_UP_DP = rows([
+    ["Vorvermarktung Glasfaser 150", null,32,0,0,0,false],
+    ["Vorvermarktung Glasfaser 300", null,41,0,0,0,false],
 ]);
 const VV_SUCU = { [G]: VV_CONTENT_UP_TP };
 const VV_SNCU = { [G]: VV_CONTENT_UP_TP };
 const VV_SUCN = {
-  [G+" (Double Play)"]: rows([
-    ["Vorvermarktung Glasfaser 150", null,38,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300", null,49,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600", null,60,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000", null,71,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000", null,71,0,0,0,false],
-  ]),
+  [G+" (Double Play)"]: VV_CONTENT_UP_DP,
   [G+" (Triple Play)"]: VV_CONTENT_UP_TP,
 };
+// SNCN (Speed Neutral/Content Neutral): laut neuer Liste EIN Pauschalwert für
+// alle Tarife, egal ob Double oder Triple Play.
 const VV_SNCN = {
-  [G+" (Double Play)"]: rows([
-    ["Vorvermarktung Glasfaser 150", null,24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300", null,24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600", null,24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000", null,24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000", null,24,0,0,0,false],
-  ]),
-  [G+" (Triple Play)"]: rows([
-    ["Vorvermarktung Glasfaser 150","MagentaTV Smart",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV Smart",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV Smart",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV Smart",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV Smart",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV SmartStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV SmartStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV SmartStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV SmartStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV SmartStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 150","MagentaTV MegaStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 300","MagentaTV MegaStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 600","MagentaTV MegaStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 1.000","MagentaTV MegaStream",24,0,0,0,false],
-    ["Vorvermarktung Glasfaser 2.000","MagentaTV MegaStream",24,0,0,0,false],
-  ]),
-  ["Sonstiges"]: rows([
-    ["Vorvermarktung Hausanschluss only", null,24,0,0,0,false],
+  [G+" (alle Tarife)"]: rows([
+    ["Alle Tarife (Double oder Triple Play)", null,20,0,0,0,false],
   ]),
 };
 
-// ---- NACHVERMARKTUNG: nutzt dieselben Werte wie STANDARD, aber nur Glasfaser ----
-function onlyGlasfaser(obj){
-  const out = {};
-  Object.keys(obj).forEach(k => { if(k.startsWith(G)) out[k] = obj[k]; });
-  return out;
-}
-const NV_BNDP = onlyGlasfaser(STD_BNDP);
-const NV_NDPT = onlyGlasfaser(STD_NDPT);
-const NV_BNTP = onlyGlasfaser(STD_BNTP);
-const NV_NTPT = onlyGlasfaser(STD_NTPT);
-const NV_LU = onlyGlasfaser(STD_LU);
-const NV_SUCU = onlyGlasfaser(STD_SUCU);
-const NV_SNCU = onlyGlasfaser(STD_SNCU);
-const NV_SUCN = onlyGlasfaser(STD_SUCN);
-const NV_SNCN = onlyGlasfaser(STD_SNCN);
+// ---- NACHVERMARKTUNG (nur Glasfaser) ----
+// Stand: Primus Connect, ab 09/26. Eigene, direkte Werte (nicht mehr von
+// STANDARD abgeleitet), nur Glasfaser 150/300 enthalten.
+const NV_BNDP = { [G]: rows([
+    ["Nachvermarktung Glasfaser 150", null,90,26,32,62,true],
+    ["Nachvermarktung Glasfaser 300", null,90,39,32,62,true],
+])};
+const NV_NDPT = NV_BNDP;
+const NV_BNTP = { [G]: rows([
+    ["Nachvermarktung Glasfaser 150","MagentaTV Smart",122,26,26,62,true],
+    ["Nachvermarktung Glasfaser 300","MagentaTV Smart",122,39,26,62,true],
+    ["Nachvermarktung Glasfaser 150","MagentaTV SmartStream",129,26,26,62,true],
+    ["Nachvermarktung Glasfaser 300","MagentaTV SmartStream",129,39,26,62,true],
+    ["Nachvermarktung Glasfaser 150","MagentaTV MegaStream",135,26,26,62,true],
+    ["Nachvermarktung Glasfaser 300","MagentaTV MegaStream",135,39,26,62,true],
+])};
+const NV_NTPT = NV_BNTP;
+
+const NV_LUSX_TP = rows([
+    ["Nachvermarktung Glasfaser 150","MagentaTV Smart",72,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV Smart",82,0,0,62,false],
+    ["Nachvermarktung Glasfaser 150","MagentaTV SmartStream",77,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV SmartStream",87,0,0,62,false],
+    ["Nachvermarktung Glasfaser 150","MagentaTV MegaStream",82,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV MegaStream",92,0,0,62,false],
+]);
+const NV_LU = { [G]: NV_LUSX_TP };
+
+const NV_CONTENT_UP_TP = rows([
+    ["Nachvermarktung Glasfaser 150","MagentaTV Smart",32,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV Smart",41,0,0,62,false],
+    ["Nachvermarktung Glasfaser 150","MagentaTV SmartStream",37,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV SmartStream",46,0,0,62,false],
+    ["Nachvermarktung Glasfaser 150","MagentaTV MegaStream",41,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300","MagentaTV MegaStream",50,0,0,62,false],
+]);
+const NV_CONTENT_UP_DP = rows([
+    ["Nachvermarktung Glasfaser 150", null,31,0,0,62,false],
+    ["Nachvermarktung Glasfaser 300", null,40,0,0,62,false],
+]);
+const NV_SUCU = { [G]: NV_CONTENT_UP_TP };
+const NV_SNCU = { [G]: NV_CONTENT_UP_TP };
+const NV_SUCN = {
+  [G+" (Double Play)"]: NV_CONTENT_UP_DP,
+  [G+" (Triple Play)"]: NV_CONTENT_UP_TP,
+};
+const NV_SNCN = {
+  [G+" (alle Tarife)"]: rows([
+    ["Alle Tarife (Double oder Triple Play)", null,3,0,0,62,false],
+  ]),
+};
 
 // ---- ZUHAUSE SOFORT (nur Kupfer, nur Neukunde) ----
+// Stand: Primus Connect, ab 09/26. Nur MagentaTV Smart bei Triple Play enthalten
+// (SmartStream/MegaStream fehlen in dieser Liste).
 const ZS_BNDP = { [K]: rows([
-    ["Zuhause Sofort S", null,108,0,38,0,true],
-    ["Zuhause Sofort M", null,108,16,38,0,true],
-    ["Zuhause Sofort L", null,108,31,38,0,true],
-    ["Zuhause Sofort XL", null,108,47,38,0,true],
+    ["Zuhause Sofort S", null,90,0,32,0,true],
+    ["Zuhause Sofort M", null,90,13,32,0,true],
+    ["Zuhause Sofort L", null,90,26,32,0,true],
+    ["Zuhause Sofort XL", null,90,39,32,0,true],
 ])};
 const ZS_NDPT = ZS_BNDP;
 const ZS_BNTP = { [K]: rows([
-    ["Zuhause Sofort S","MagentaTV Smart",146,0,31,0,true],
-    ["Zuhause Sofort M","MagentaTV Smart",146,16,31,0,true],
-    ["Zuhause Sofort L","MagentaTV Smart",146,31,31,0,true],
-    ["Zuhause Sofort XL","MagentaTV Smart",146,47,31,0,true],
-    ["Zuhause Sofort S","MagentaTV MegaStream",162,0,31,0,true],
-    ["Zuhause Sofort M","MagentaTV MegaStream",162,16,31,0,true],
-    ["Zuhause Sofort L","MagentaTV MegaStream",162,31,31,0,true],
-    ["Zuhause Sofort XL","MagentaTV MegaStream",162,47,31,0,true],
+    ["Zuhause Sofort S","MagentaTV Smart",122,0,26,0,true],
+    ["Zuhause Sofort M","MagentaTV Smart",122,13,26,0,true],
+    ["Zuhause Sofort L","MagentaTV Smart",122,26,26,0,true],
+    ["Zuhause Sofort XL","MagentaTV Smart",122,39,26,0,true],
 ])};
 const ZS_NTPT = ZS_BNTP;
 
